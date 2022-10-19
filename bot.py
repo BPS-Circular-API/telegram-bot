@@ -20,6 +20,33 @@ def help(update, context):
     update.message.reply_text('Help!')
 
 
+def _latest(update, context):
+    """Send the latest circulars."""
+    category = context.args[0]
+    print(context)
+    print(context.args)
+    info = get_latest_circular(category, cached=True)
+    print(info)
+    if info is None:
+        update.message.reply_text("Error in fetching latest circulars.")
+        return
+    reply_text = ""
+    reply_text += f"Latest `{category}` Circular:\n\n"
+
+    reply_text += f"*Title*: `{info['title'].capitalize()}`\n"
+    reply_text += f"*URL*: {info['link']}\n"
+
+    png = get_png(info['link'])
+
+    # send text and image in one message
+    # update.message.reply_text(reply_text, parse_mode="Markdown")
+
+    # send image with caption
+    update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
+
+
+
+
 
 def error(update, context):
     """Log Errors caused by Updates."""
@@ -39,7 +66,7 @@ def main():
     # Command Handlers
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
-    # dp.add_handler(CommandHandler("latest", _latest))
+    dp.add_handler(CommandHandler("latest", _latest))
     # dp.add_handler(CommandHandler("list", _list))
 
     dp.add_error_handler(error)
