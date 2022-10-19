@@ -16,8 +16,14 @@ def start(update, context):
 
 def help(update, context):
     """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
+    reply_text = "**BPS Circular Bot**\n\n" \
+                 "/latest `general`/`ptm`/`exam`: Sends the latest circular.\n" \
+                 "/list `general`/`ptm`/`exam`: Sends the list of circulars.\n" \
+                 "/search `search terms`: Searches for a circular.\n\n" \
+                 "*Source Code*: https://bpsapi.rajtech.me/r/telegram-bot/\n" \
+                 "Developed by [Raj Dave](mention:@Nice_Creator)."
 
+    update.message.reply_text(reply_text, parse_mode="Markdown")
 
 
 def _latest(update, context):
