@@ -23,10 +23,7 @@ def help(update, context):
 def _latest(update, context):
     """Send the latest circulars."""
     category = context.args[0]
-    print(context)
-    print(context.args)
     info = get_latest_circular(category, cached=True)
-    print(info)
     if info is None:
         update.message.reply_text("Error in fetching latest circulars.")
         return
@@ -94,6 +91,24 @@ def _list(update, context):
     page_list = final_data
 
 
+def _search(update, context):
+    args = context.args
+    if len(args) == 0:
+        update.message.reply_text("Please provide a search query.")
+        return
+
+    query = " ".join(args)
+    res = search(query)
+    if res is None:
+        update.message.reply_text(f"*Circular Search*\n\n*Query*: `{query}`\n\n*Result*: No results found.", parse_mode="Markdown")
+        return
+
+    reply_text = f"*Circular Search*\n\n*Query*: `{query}`\n\n*Title*: `{res['title']}`\n*URL*: {res['link']}"
+    png = get_png(res['link'])
+
+    update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
+
+
 def list_page_callback(update, context):
     query = update.callback_query
 
@@ -134,6 +149,7 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("latest", _latest))
     dp.add_handler(CommandHandler("list", _list))
+    dp.add_handler(CommandHandler("search", _search))
 
     dp.add_error_handler(error)
 
