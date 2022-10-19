@@ -12,31 +12,38 @@ page_list = []
 
 def start(update, context):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
-
+    update.message.reply_text('Hello! I am the BPS Circular Bot. Use /help to view the list of commands.')
 
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
 
 
+
 def _latest(update, context):
     """Send the latest circulars."""
-    category = context.args[0]
+    try:
+        category = context.args[0]
+        if category not in categories:
+            raise ValueError
+
+    except IndexError:
+        update.message.reply_text("You are missing the category argument. Please include a category in your command. (`general`/`ptm`/`exam`)", parse_mode="Markdown")
+        return
+
+    except ValueError:
+        update.message.reply_text("Please provide a valid category. (`general`/`ptm`/`exam`)", parse_mode="Markdown")
+        return
+
     info = get_latest_circular(category, cached=True)
+
     if info is None:
         update.message.reply_text("Error in fetching latest circulars.")
         return
-    reply_text = ""
-    reply_text += f"Latest `{category}` Circular:\n\n"
 
-    reply_text += f"*Title*: `{info['title'].capitalize()}`\n"
-    reply_text += f"*URL*: {info['link']}\n"
+    reply_text = f"Latest `{category}` Circular:\n\n*Title*: `{info['title'].capitalize()}`\n*URL*: {info['link']}\n"
 
     png = get_png(info['link'])
-
-    # send text and image in one message
-    # update.message.reply_text(reply_text, parse_mode="Markdown")
 
     # send image with caption
     update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
@@ -44,11 +51,26 @@ def _latest(update, context):
 
 def _list(update, context):
     """Send the list of circulars."""
-    category = context.args[0]
+    try:
+        category = context.args[0]
+        if category not in categories:
+            raise ValueError
+
+    except IndexError:
+        update.message.reply_text(
+            "You are missing the category argument. Please include a category in your command. (`general`/`ptm`/`exam`)",
+            parse_mode="Markdown")
+        return
+
+    except ValueError:
+        update.message.reply_text("Please provide a valid category. (`general`/`ptm`/`exam`)", parse_mode="Markdown")
+        return
+
     raw_res = get_circular_list(category)
     if raw_res is None:
         update.message.reply_text("Error in fetching list of circulars.")
         return
+
     reply_text = ""
     reply_text += f"List of `{category}` Circulars:\n\n"
 
@@ -142,7 +164,9 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
+    # Event Handlers
     dp.add_handler(CallbackQueryHandler(list_page_callback, pattern='^character#'))
+    dp.add_error_handler(error)
 
     # Command Handlers
     dp.add_handler(CommandHandler("start", start))
@@ -150,8 +174,6 @@ def main():
     dp.add_handler(CommandHandler("latest", _latest))
     dp.add_handler(CommandHandler("list", _list))
     dp.add_handler(CommandHandler("search", _search))
-
-    dp.add_error_handler(error)
 
     # Start the Bot
     updater.start_polling()
