@@ -1,6 +1,4 @@
 import configparser
-import sqlite3
-import time
 import logging
 import requests
 import pickle
@@ -36,6 +34,7 @@ def colorlogger():
 console = colorlogger()
 
 try:
+    # print all sections in the config file
     telegram_token: str = config.get('secret', 'telegram_token')
     log_level: str = config.get('main', 'log_level')
     base_api_url: str = config.get('main', 'base_api_url')
@@ -56,7 +55,6 @@ if log_level.upper() in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
 else:
     console.warning(f"Invalid log level {log_level}. Defaulting to INFO.")
     console.setLevel("INFO")
-
 
 
 def get_circular_list(category: str) -> tuple or None:
@@ -131,13 +129,23 @@ def search(title: str) -> dict or None:
 
 def get_cached():
     # get dict from data/temp.pickle
-    with open("./data/temp.pickle", "rb") as f:
+    with open("./data/circular-cache.pickle", "rb") as f:
         return pickle.load(f)
 
 
 def set_cached(obj):
     # set dict to data/temp.pickle
-    with open("./data/temp.pickle", "wb") as f:
+    with open("./data/circular-cache.pickle", "wb") as f:
         pickle.dump(obj, f)
 
 
+def get_list():
+    # get list from data/list.pickle
+    with open("./data/list.pickle", "rb") as f:
+        return pickle.load(f)
+
+
+def set_list(obj):
+    # set list to data/list.pickle
+    with open("./data/list.pickle", "wb") as f:
+        pickle.dump(obj, f)

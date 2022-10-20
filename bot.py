@@ -1,165 +1,10 @@
-import telegram.ext
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
-from backend import *
-from telegram_bot_pagination import InlineKeyboardPaginator
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
+from data.backend import *
+from data.commands import *
+from data.listeners import *
 
 page_list = []
 
-
-# Define a few command handlers. These usually take the two arguments update and
-# context. Error handlers also receive the raised TelegramError object in error.
-
-
-def start(update, context):
-    """Send a message when the command /start is issued."""
-    update.message.reply_text('Hello! I am the BPS Circular Bot. Use /help to view the list of commands.')
-
-def help(update, context):
-    """Send a message when the command /help is issued."""
-    reply_text = "**BPS Circular Bot**\n\n" \
-                 "/latest `general`/`ptm`/`exam`: Sends the latest circular.\n" \
-                 "/list `general`/`ptm`/`exam`: Sends the list of circulars.\n" \
-                 "/search `search terms`: Searches for a circular.\n\n" \
-                 "*Source Code*: https://bpsapi.rajtech.me/r/telegram-bot/\n" \
-                 "Developed by [Raj Dave](mention:@Nice_Creator)."
-
-    update.message.reply_text(reply_text, parse_mode="Markdown")
-
-
-def _latest(update, context):
-    """Send the latest circulars."""
-    try:
-        category = context.args[0]
-        if category not in categories:
-            raise ValueError
-
-    except IndexError:
-        update.message.reply_text("You are missing the category argument. Please include a category in your command. (`general`/`ptm`/`exam`)", parse_mode="Markdown")
-        return
-
-    except ValueError:
-        update.message.reply_text("Please provide a valid category. (`general`/`ptm`/`exam`)", parse_mode="Markdown")
-        return
-
-    info = get_latest_circular(category, cached=True)
-
-    if info is None:
-        update.message.reply_text("Error in fetching latest circulars.")
-        return
-
-    reply_text = f"Latest `{category}` Circular:\n\n*Title*: `{info['title'].capitalize()}`\n*URL*: {info['link']}\n"
-
-    png = get_png(info['link'])
-
-    # send image with caption
-    update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
-
-
-def _list(update, context):
-    """Send the list of circulars."""
-    try:
-        category = context.args[0]
-        if category not in categories:
-            raise ValueError
-
-    except IndexError:
-        update.message.reply_text(
-            "You are missing the category argument. Please include a category in your command. (`general`/`ptm`/`exam`)",
-            parse_mode="Markdown")
-        return
-
-    except ValueError:
-        update.message.reply_text("Please provide a valid category. (`general`/`ptm`/`exam`)", parse_mode="Markdown")
-        return
-
-    raw_res = get_circular_list(category)
-    if raw_res is None:
-        update.message.reply_text("Error in fetching list of circulars.")
-        return
-
-    reply_text = ""
-    reply_text += f"List of `{category}` Circulars:\n\n"
-
-    loop_int = 1
-    links = []
-    titles = []
-
-    for item in raw_res:
-        titles.append(f"*{loop_int}*. `{item['title']}`")  # Add the title to the list
-        links.append(f"{item['link']}")  # Add the link to the list
-        loop_int += 1
-
-    final_data = []
-    temp = []
-
-    count = 0
-
-    for title, link in zip(titles, links):
-        temp.append(f"{title}\n {link}\n\n")
-        count += 1
-        if count % 10 == 0:  # If the count is divisible by 10 (It has reached 10 fields)
-            final_data.append(''.join(temp))  # Create a copy of the embed and add it to the list
-            temp.clear()
-        elif count == len(titles):
-            final_data.append(''.join(temp))
-            temp.clear()
-
-    paginator = InlineKeyboardPaginator(
-        len(titles) // 10 + 1,
-        data_pattern='character#{page}'
-    )
-
-    # send the message with the paginator
-    update.message.reply_text(
-        text=final_data[0],
-        reply_markup=paginator.markup,
-        parse_mode='Markdown'
-    )
-    global page_list
-    page_list = final_data
-
-
-def _search(update, context):
-    args = context.args
-    if len(args) == 0:
-        update.message.reply_text("Please provide a search query.")
-        return
-
-    query = " ".join(args)
-    res = search(query)
-    if res is None:
-        update.message.reply_text(f"*Circular Search*\n\n*Query*: `{query}`\n\n*Result*: No results found.", parse_mode="Markdown")
-        return
-
-    reply_text = f"*Circular Search*\n\n*Query*: `{query}`\n\n*Title*: `{res['title']}`\n*URL*: {res['link']}"
-    png = get_png(res['link'])
-
-    update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
-
-
-def list_page_callback(update, context):
-    query = update.callback_query
-
-    query.answer()
-
-    page = int(query.data.split('#')[1])
-
-    paginator = InlineKeyboardPaginator(
-        len(page_list),
-        current_page=page,
-        data_pattern='character#{page}'
-    )
-
-    query.edit_message_text(
-        text=page_list[page - 1],
-        reply_markup=paginator.markup,
-        parse_mode='Markdown'
-    )
-
-
-def error(update, context):
-    """Log Errors caused by Updates."""
-    console.warning('Update "%s" caused error "%s"', update, context.error)
 
 
 def main():
@@ -175,11 +20,11 @@ def main():
     dp.add_error_handler(error)
 
     # Command Handlers
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
-    dp.add_handler(CommandHandler("latest", _latest))
-    dp.add_handler(CommandHandler("list", _list))
-    dp.add_handler(CommandHandler("search", _search))
+    dp.add_handler(CommandHandler("start", start_cmd))
+    dp.add_handler(CommandHandler("help", help_cmd))
+    dp.add_handler(CommandHandler("latest", latest_cmd))
+    dp.add_handler(CommandHandler("list", list_cmd))
+    dp.add_handler(CommandHandler("search", search_cmd))
 
     # Start the Bot
     updater.start_polling()
