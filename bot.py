@@ -6,7 +6,6 @@ from data.listeners import *
 page_list = []
 
 
-
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -16,7 +15,7 @@ def main():
     dp = updater.dispatcher
 
     # Event Handlers
-    dp.add_handler(CallbackQueryHandler(list_page_callback, pattern='^character#'))
+    dp.add_handler(CallbackQueryHandler(list_page_callback, pattern='^list_'))
     dp.add_error_handler(error)
 
     # Command Handlers

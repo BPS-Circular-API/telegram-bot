@@ -92,7 +92,7 @@ def list_cmd(update, context):
 
     paginator = InlineKeyboardPaginator(
         len(titles) // 10 + 1,
-        data_pattern=f"list_{category}" + '#{page}'
+        data_pattern=f'list_{category}#' + '{page}'
     )
 
     # send the message with the paginator

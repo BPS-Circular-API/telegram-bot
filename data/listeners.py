@@ -1,34 +1,39 @@
+import telegram
 from telegram_bot_pagination import InlineKeyboardPaginator
 from data.backend import console, get_list
 
 
 def list_page_callback(update, context):
     query = update.callback_query
-    print(query.data)
     query.answer()
 
     page = int(query.data.split('#')[1])
 
     if query.data.split('#')[0] == "list_general":
-        page_list = get_list()['general']
-    elif query.data.split('#')[1] == "list_ptm":
-        page_list = get_list()['ptm']
-    elif query.data.split('#')[1] == "list_exam":
-        page_list = get_list()['exam']
+        cat = "general"
+    elif query.data.split('#')[0] == "list_ptm":
+        cat = "ptm"
+    elif query.data.split('#')[0] == "list_exam":
+        cat = "exam"
     else:
         return
 
+    page_list = get_list()[cat]
+
     paginator = InlineKeyboardPaginator(
-        len(page_list) // 10 + 1,
+        len(page_list),
         current_page=page,
-        data_pattern='character#{page}'
+        data_pattern=f"list_{cat}#" + '{page}'
     )
 
-    query.edit_message_text(
-        text=page_list[page - 1],
-        reply_markup=paginator.markup,
-        parse_mode='Markdown'
-    )
+    try:
+        query.edit_message_text(
+            text=page_list[page - 1],
+            reply_markup=paginator.markup,
+            parse_mode='Markdown'
+        )
+    except telegram.error.BadRequest:
+        pass
 
 
 def error(update, context):
