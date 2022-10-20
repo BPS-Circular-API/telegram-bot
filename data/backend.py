@@ -14,7 +14,7 @@ receives = ["all", "links", "titles"]
 config = configparser.ConfigParser()
 
 try:
-    config.read('data/config.ini')
+    config.read('config.ini')
 except Exception as e:
     print("Error reading the config.ini file. Error: " + str(e))
     sys.exit()
