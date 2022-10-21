@@ -1,0 +1,4 @@
+colorlog==6.6.0
+python_telegram_bot>=13.14
+python_telegram_bot_pagination==0.0.2
+requests==2.27.1

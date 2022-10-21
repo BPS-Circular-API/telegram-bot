@@ -1,3 +1,4 @@
+import telegram.error
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from data.backend import *
 from data.commands import *
@@ -9,8 +10,15 @@ page_list = []
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
-    updater = Updater(telegram_token, use_context=True)
-
+    try:
+        updater = Updater(telegram_token, use_context=True)
+    except telegram.error.InvalidToken:
+        console.critical("Invalid Telegram Token.")
+        return
+    except Exception as err:
+        console.critical(f"Error: {err}")
+        return
+    
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
