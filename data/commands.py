@@ -1,5 +1,6 @@
 from data.backend import get_latest_circular, get_circular_list, search, get_png, categories, get_list, set_list
 from telegram_bot_pagination import InlineKeyboardPaginator
+import sqlite3
 
 
 def start_cmd(update, context):
@@ -39,7 +40,7 @@ def latest_cmd(update, context):
         update.message.reply_text("Error in fetching latest circulars.")
         return
 
-    reply_text = f"Latest `{category}` Circular:\n\n*Title*: `{info['title'].capitalize()}`\n*URL*: {info['link']}"
+    reply_text = f"Latest `{category}` Circular:\n\n*Title*: `{info['title'].capitalize()}`\n*ID*: `{info['id']}`\n*URL*: {info['link']}"
     update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
 
 
@@ -68,7 +69,7 @@ def list_cmd(update, context):
     titles = []
 
     for item in raw_res:
-        titles.append(f"*{loop_int}*. `{item['title']}`")  # Add the title to the list
+        titles.append(f"*{loop_int}*. \[{item['id']}] `{item['title']}`")  # Add the title to the list
         links.append(f"{item['link']}")  # Add the link to the list
         loop_int += 1
 
@@ -123,3 +124,39 @@ def search_cmd(update, context):
     png = get_png(res['link'])
 
     update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
+
+
+def guild_notify_cmd(update, context):
+    """Send a message when the command /guild_notify is issued."""
+
+    con = sqlite3.connect("./data/data.db")
+    cur = con.cursor()
+
+    guild_id = update.message.chat.id
+    cur.execute(f"SELECT * FROM guild_notify WHERE guild_id = {guild_id}")
+    guilds = cur.fetchall()
+    if not len(guilds) == 0:
+        update.message.reply_text("You're already subscribed to the guild notifications.")
+        return
+
+    cur.execute(f"INSERT INTO guild_notify VALUES ({guild_id})")
+    con.commit()
+
+    update.message.reply_text("You have been subscribed to the guild notifications.")
+
+
+def guild_unnotify_cmd(update, context):
+    """Send a message when the command /guild_unnotify is issued."""
+    con = sqlite3.connect("./data/data.db")
+    cur = con.cursor()
+    guild_id = update.message.chat.id
+    cur.execute(f"SELECT * FROM guild_notify WHERE guild_id = {guild_id}")
+    guilds = cur.fetchall()
+    if len(guilds) == 0:
+        update.message.reply_text("You're not subscribed to the guild notifications.")
+        return
+
+    cur.execute(f"DELETE FROM guild_notify WHERE guild_id = {guild_id}")
+    con.commit()
+
+    update.message.reply_text("You have been unsubscribed from the guild notifications.")

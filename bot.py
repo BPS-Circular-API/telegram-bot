@@ -18,7 +18,7 @@ def main():
     except Exception as err:
         console.critical(f"Error: {err}")
         return
-    
+
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
@@ -32,6 +32,8 @@ def main():
     dp.add_handler(CommandHandler("latest", latest_cmd))
     dp.add_handler(CommandHandler("list", list_cmd))
     dp.add_handler(CommandHandler("search", search_cmd))
+    # dp.add_handler(CommandHandler("notify_sub", guild_notify_cmd))
+    # dp.add_handler(CommandHandler("notify_unsub", guild_unnotify_cmd))
 
     # Start the Bot
     updater.start_polling()

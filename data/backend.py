@@ -3,10 +3,12 @@ import logging
 import requests
 import pickle
 import sys
+import sqlite3
 from colorlog import ColoredFormatter
 
 categories = ["general", "exam", "ptm"]
-receives = ["all", "links", "titles"]
+
+amount_to_cache = 1
 
 # Loading config.ini
 config = configparser.ConfigParser()
