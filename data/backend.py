@@ -115,7 +115,7 @@ def get_png(download_url: str) -> str or None:
     return str(request.json()['data'])
 
 
-def search(title: str) -> dict or None:
+def search(title: str or int) -> dict or None:
     url = base_api_url + "search"
 
     params = {'title': title}

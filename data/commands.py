@@ -23,9 +23,9 @@ def help_cmd(update, context):
 def latest_cmd(update, context):
     """Send the latest circulars."""
     try:
-        category = context.args[0]
-        if category not in categories:
+        if context.args[0][0] not in ['g', 'p', 'e']:
             raise ValueError
+        category = "general" if context.args[0][0] == 'g' else "ptm" if context.args[0][0] == 'p' else "exam"
     except IndexError:
         update.message.reply_text("You are missing the category argument. Please include a category in your command. (`general`/`ptm`/`exam`)", parse_mode="Markdown")
         return
@@ -47,9 +47,9 @@ def latest_cmd(update, context):
 def list_cmd(update, context):
     """Send the list of circulars."""
     try:
-        category = context.args[0]
-        if category not in categories:
+        if context.args[0][0] not in ['g', 'p', 'e']:
             raise ValueError
+        category = "general" if context.args[0][0] == 'g' else "ptm" if context.args[0][0] == 'p' else "exam"
     except IndexError:
         update.message.reply_text(
             "You are missing the category argument. Please include a category in your command. (`general`/`ptm`/`exam`)",
@@ -120,7 +120,7 @@ def search_cmd(update, context):
         update.message.reply_text(f"*Circular Search*\n\n*Query*: `{query}`\n\n*Result*: No results found.", parse_mode="Markdown")
         return
 
-    reply_text = f"*Circular Search*\n\n*Query*: `{query}`\n\n*Title*: `{res['title']}`\n*URL*: {res['link']}"
+    reply_text = f"*Circular Search*\n\n*Query*: `{query}`\n\n*Title*: `{res['title']}`\n*ID*: `{res['id']}`\n*URL*: {res['link']}"
     png = get_png(res['link'])
 
     update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
