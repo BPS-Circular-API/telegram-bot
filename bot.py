@@ -1,4 +1,3 @@
-import telegram.error
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from data.backend import *
 from data.commands import *
@@ -9,15 +8,6 @@ page_list = []
 
 def main():
     """Start the bot."""
-    # Create the Updater and pass it your bot's token.
-    try:
-        updater = Updater(telegram_token, use_context=True)
-    except telegram.error.InvalidToken:
-        console.critical("Invalid Telegram Token.")
-        return
-    except Exception as err:
-        console.critical(f"Error: {err}")
-        return
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -32,12 +22,13 @@ def main():
     dp.add_handler(CommandHandler("latest", latest_cmd))
     dp.add_handler(CommandHandler("list", list_cmd))
     dp.add_handler(CommandHandler("search", search_cmd))
-    # dp.add_handler(CommandHandler("notify_sub", guild_notify_cmd))
-    # dp.add_handler(CommandHandler("notify_unsub", guild_unnotify_cmd))
+    dp.add_handler(CommandHandler("notify_sub", guild_notify_cmd))
+    dp.add_handler(CommandHandler("notify_unsub", guild_unnotify_cmd))
 
     # Start the Bot
     updater.start_polling()
     updater.idle()
+    
 
 
 if __name__ == '__main__':

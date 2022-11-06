@@ -1,4 +1,4 @@
-from data.backend import get_latest_circular, get_circular_list, search, get_png, categories, get_list, set_list
+from data.backend import get_latest_circular, get_circular_list, search, get_png, categories, get_list, set_list, client
 from telegram_bot_pagination import InlineKeyboardPaginator
 import sqlite3
 
@@ -20,6 +20,7 @@ def help_cmd(update, context):
     update.message.reply_text(reply_text, parse_mode="Markdown")
 
 
+# @client.message_handler(content_types=['latest'])
 def latest_cmd(update, context):
     """Send the latest circulars."""
     try:

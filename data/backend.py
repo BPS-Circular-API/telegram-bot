@@ -1,3 +1,4 @@
+import telegram.error
 import configparser
 import logging
 import requests
@@ -5,6 +6,8 @@ import pickle
 import sys
 import sqlite3
 from colorlog import ColoredFormatter
+from telegram.ext import Updater
+
 
 categories = ["general", "exam", "ptm"]
 
@@ -22,9 +25,7 @@ except Exception as e:
 
 # Initializing the logger
 def colorlogger():
-    # disabler loggers
-    for logger in logging.Logger.manager.loggerDict:
-        logging.getLogger(logger).disabled = True
+
     logger = logging.getLogger()
     stream = logging.StreamHandler()
     log_format = "%(reset)s%(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s"
@@ -151,3 +152,14 @@ def set_list(obj):
     # set list to data/list.pickle
     with open("./data/list.pickle", "wb") as f:
         pickle.dump(obj, f)
+
+
+try:
+    updater = Updater(telegram_token, use_context=True)
+    client = updater.bot
+except telegram.error.InvalidToken:
+    console.critical("Invalid Telegram Token.")
+    sys.exit()
+except Exception as err:
+    console.critical(f"Error: {err}")
+    sys.exit()

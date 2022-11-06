@@ -45,7 +45,7 @@ def get_circulars(_cats, final_dict):
 
     set_cached(final_dict)
 
-"""
+
 def circular_checker():
     categories = ("ptm", "general", "exam")
     final_dict = {"general": [], "ptm": [], "exam": []}
@@ -118,19 +118,21 @@ def notify(cat, circular):
     for guild in guilds:
         try:
             # send an image with caption to the guild
-            bot.send_photo(guild[0], png, caption=f"*{circular['title']}*\n\n{circular['link']}", parse_mode='Markdown')    # TODO: Fix this
+            bot.send_photo(guild[0], png, caption=f"*{circular['title']}*\n\n{circular['link']}",
+                           parse_mode='Markdown')  # TODO: Fix this
+
+            # bot.send_photo(chat_id, png, caption=f"*{circular['title']}*\n\n{circular['link']}", parse_mode='Markdown')
 
         except telegram.error.BadRequest:
             pass
-"""
 
 
 def error(update, context):
     """Log Errors caused by Updates."""
     console.warning('Update "%s" caused error "%s"', update, context.error)
 
-# start circular checker as a daemon
-# t = threading.Thread(target=circular_checker)
-# t.daemon = True
-# t.start()
 
+# start circular checker as a daemon
+t = threading.Thread(target=circular_checker)
+t.daemon = True
+t.start()
