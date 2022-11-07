@@ -35,7 +35,7 @@ def latest_cmd(update, context):
         return
 
     info = get_latest_circular(category, cached=True)
-    png = get_png(info['link'])     # Get the Circular's PNG
+    png = get_png(info['link'])[0]     # Get the Circular's PNG
 
     if info is None:
         update.message.reply_text("Error in fetching latest circulars.")
@@ -122,7 +122,7 @@ def search_cmd(update, context):
         return
 
     reply_text = f"*Circular Search*\n\n*Query*: `{query}`\n\n*Title*: `{res['title']}`\n*ID*: `{res['id']}`\n*URL*: {res['link']}"
-    png = get_png(res['link'])
+    png = get_png(res['link'])[0]
 
     update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
 

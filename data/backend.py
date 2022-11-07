@@ -103,7 +103,7 @@ def get_latest_circular(category: str, cached=False) -> dict or None:
     return info
 
 
-def get_png(download_url: str) -> str or None:
+def get_png(download_url: str) -> list or None:
     url = base_api_url + "getpng"
     params = {'url': download_url}
 
