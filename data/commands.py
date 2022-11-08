@@ -127,14 +127,14 @@ def search_cmd(update, context):
     update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
 
 
-def subscribe_command(update, context):
+def subscribe_cmd(update, context):
     """Send a message when the command /guild_notify is issued."""
 
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
 
     guild_id = update.message.chat.id
-    cur.execute(f"SELECT * FROM notify WHERE guild_id = {guild_id}")
+    cur.execute(f"SELECT * FROM notify WHERE id = {guild_id}")
     guilds = cur.fetchall()
     if not len(guilds) == 0:
         update.message.reply_text("You're already subscribed to the guild notifications.")
@@ -146,18 +146,18 @@ def subscribe_command(update, context):
     update.message.reply_text("You have been subscribed to the guild notifications.")
 
 
-def unsubscribe_command(update, context):
+def unsubscribe_cmd(update, context):
     """Send a message when the command /guild_unnotify is issued."""
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
     guild_id = update.message.chat.id
-    cur.execute(f"SELECT * FROM notify WHERE guild_id = {guild_id}")
+    cur.execute(f"SELECT * FROM notify WHERE id = {guild_id}")
     guilds = cur.fetchall()
     if len(guilds) == 0:
         update.message.reply_text("You're not subscribed to the guild notifications.")
         return
 
-    cur.execute(f"DELETE FROM notify WHERE guild_id = {guild_id}")
+    cur.execute(f"DELETE FROM notify WHERE id = {guild_id}")
     con.commit()
 
     update.message.reply_text("You have been unsubscribed from the guild notifications.")
