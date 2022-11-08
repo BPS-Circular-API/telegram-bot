@@ -15,7 +15,7 @@ def help_cmd(update, context):
                  "/list `general`/`ptm`/`exam`: Sends the list of circulars.\n" \
                  "/search `search terms`: Searches for a circular.\n\n" \
                  "*Source Code*: https://bpsapi.rajtech.me/r/telegram-bot/\n" \
-                 "Developed by [Raj Dave](t.me/@Nice_Creator)."
+                 "Developed by [Raj Dave](t.me/Nice_Creator)."
 
     update.message.reply_text(reply_text, parse_mode="Markdown")
 
@@ -127,37 +127,37 @@ def search_cmd(update, context):
     update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
 
 
-def guild_notify_cmd(update, context):
+def subscribe_command(update, context):
     """Send a message when the command /guild_notify is issued."""
 
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
 
     guild_id = update.message.chat.id
-    cur.execute(f"SELECT * FROM guild_notify WHERE guild_id = {guild_id}")
+    cur.execute(f"SELECT * FROM notify WHERE guild_id = {guild_id}")
     guilds = cur.fetchall()
     if not len(guilds) == 0:
         update.message.reply_text("You're already subscribed to the guild notifications.")
         return
 
-    cur.execute(f"INSERT INTO guild_notify VALUES ({guild_id})")
+    cur.execute(f"INSERT INTO notify VALUES ({guild_id})")
     con.commit()
 
     update.message.reply_text("You have been subscribed to the guild notifications.")
 
 
-def guild_unnotify_cmd(update, context):
+def unsubscribe_command(update, context):
     """Send a message when the command /guild_unnotify is issued."""
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
     guild_id = update.message.chat.id
-    cur.execute(f"SELECT * FROM guild_notify WHERE guild_id = {guild_id}")
+    cur.execute(f"SELECT * FROM notify WHERE guild_id = {guild_id}")
     guilds = cur.fetchall()
     if len(guilds) == 0:
         update.message.reply_text("You're not subscribed to the guild notifications.")
         return
 
-    cur.execute(f"DELETE FROM guild_notify WHERE guild_id = {guild_id}")
+    cur.execute(f"DELETE FROM notify WHERE guild_id = {guild_id}")
     con.commit()
 
     update.message.reply_text("You have been unsubscribed from the guild notifications.")
