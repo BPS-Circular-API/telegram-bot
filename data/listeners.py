@@ -2,7 +2,7 @@ import telegram
 import threading
 import sqlite3
 from telegram_bot_pagination import InlineKeyboardPaginator
-from data.backend import console, get_list, amount_to_cache, get_png, get_circular_list, set_cached, get_cached
+from data.backend import console, get_list, amount_to_cache, get_png, get_circular_list, set_cached, get_cached, client
 
 
 def list_page_callback(update, context):
@@ -49,11 +49,8 @@ def get_circulars(_cats, final_dict):
 def circular_checker():
     categories = ("ptm", "general", "exam")
     final_dict = {"general": [], "ptm": [], "exam": []}
-    new_circular_categories = []
-    new_circular_objects = []
+    new_circular_objects = {"general": [], "ptm": [], "exam": []}
     amount_to_cache = 5
-    if amount_to_cache < 1:
-        amount_to_cache = 1
 
     try:  # Try to get the cached data and make it a dict
         old_cached = dict(get_cached())
@@ -81,26 +78,20 @@ def circular_checker():
     console.debug('[Listeners] | ' + str(final_dict))
     console.debug('[Listeners] | ' + str(old_cached))
 
-    for cat in categories:
-        if not len(final_dict[cat]) == len(old_cached[cat]):
-            get_circulars(categories, final_dict)
-            console.info("The length of the circulars in a category is different, updating cache")
-            return
-
     if final_dict != old_cached:  # If the old and new dict are not the same
         console.info("There's a new circular posted!")
 
         for circular_cat in categories:
-            for i in range(len(final_dict[circular_cat])):
-                if final_dict[circular_cat][i] not in old_cached[circular_cat]:
-                    new_circular_categories.append(circular_cat)
-                    new_circular_objects.append(final_dict[circular_cat][i])
+            new_circular_objects[circular_cat] = [i for i in final_dict[circular_cat] if
+                                                  i not in old_cached[circular_cat]]
 
-        console.info(f"{len(new_circular_objects)} new circular(s) found")
+        console.info(f"{(sum(len(v) for v in new_circular_objects.values()))} new circular(s) found")
         console.debug(new_circular_objects)
 
-        for i in range(len(new_circular_objects)):
-            notify(new_circular_categories[i], new_circular_objects[i])
+        for cat in categories:
+            for circular in new_circular_objects[cat]:
+                console.debug(circular)
+                notify(cat, circular)
 
     else:
         console.info("No new circulars")
@@ -110,21 +101,24 @@ def notify(cat, circular):
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
     # get users from db
-    cur.execute("SELECT * FROM guild_notify")
-    guilds = cur.fetchall()
+    cur.execute("SELECT * FROM notify")
+    targets = cur.fetchall()
 
     png = get_png(circular['link'])
 
-    for guild in guilds:
+    for target in targets:
         try:
+            # TODO : fix this
             # send an image with caption to the guild
-            bot.send_photo(guild[0], png, caption=f"*{circular['title']}*\n\n{circular['link']}",
-                           parse_mode='Markdown')  # TODO: Fix this
-
-            # bot.send_photo(chat_id, png, caption=f"*{circular['title']}*\n\n{circular['link']}", parse_mode='Markdown')
+            print(target)
+            client.send_photo(str(target[0]), png, caption=f"*{circular['title']}*\n\n{circular['link']}", parse_mode='Markdown')
+            console.log(f"Sent circular to {target[0]}")
 
         except telegram.error.BadRequest:
             pass
+
+        except Exception as e:
+            console.warning(f"Error sending circular to {target[0]} : {e}")
 
 
 def error(update, context):
