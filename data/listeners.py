@@ -2,7 +2,7 @@ import telegram
 import threading
 import sqlite3
 from telegram_bot_pagination import InlineKeyboardPaginator
-from data.backend import console, get_list, amount_to_cache, get_png, get_circular_list, set_cached, get_cached, client
+from data.backend import console, get_list, get_png, get_circular_list, set_cached, get_cached, client
 
 
 def list_page_callback(update, context):
@@ -41,7 +41,7 @@ def list_page_callback(update, context):
 def get_circulars(_cats, final_dict):
     for item in _cats:
         res = get_circular_list(item)
-        final_dict[item] = [res[i] for i in range(amount_to_cache)]
+        final_dict[item] = res[i]
 
     set_cached(final_dict)
 
@@ -50,7 +50,6 @@ def circular_checker():
     categories = ("ptm", "general", "exam")
     final_dict = {"general": [], "ptm": [], "exam": []}
     new_circular_objects = {"general": [], "ptm": [], "exam": []}
-    amount_to_cache = 5
 
     try:  # Try to get the cached data and make it a dict
         old_cached = dict(get_cached())
@@ -70,8 +69,7 @@ def circular_checker():
         console.debug("Cache is not empty, checking for new circulars")
 
     for item in categories:
-        res = get_circular_list(item)
-        final_dict[item] = [res[i] for i in range(amount_to_cache)]
+        final_dict[item] = get_circular_list(item)
 
     get_circulars(categories, final_dict)
 
@@ -104,15 +102,21 @@ def notify(cat, circular):
     cur.execute("SELECT * FROM notify")
     targets = cur.fetchall()
 
-    png = get_png(circular['link'])
+    png = get_png(circular['link'])[0]
 
     for target in targets:
         try:
-            # TODO : fix this
-            # send an image with caption to the guild
-            print(target)
-            client.send_photo(str(target[0]), png, caption=f"*{circular['title']}*\n\n{circular['link']}", parse_mode='Markdown')
-            console.log(f"Sent circular to {target[0]}")
+            client.send_photo(
+                target[0], photo=png, caption=
+                    f"New Circular in *{cat.capitalize()}*\n"
+                    f"\n"
+                    f"*Title*: `{circular['title']}`\n"
+                    f"*ID*: `{circular['id']}`\n"
+                    # f"\n"
+                    f"*URL*: {circular['link']}",
+                parse_mode='Markdown')
+
+            console.info(f"Sent circular to {target[0]}")
 
         except telegram.error.BadRequest:
             pass

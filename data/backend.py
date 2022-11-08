@@ -11,7 +11,6 @@ from telegram.ext import Updater
 
 categories = ["general", "exam", "ptm"]
 
-amount_to_cache = 1
 
 # Loading config.ini
 config = configparser.ConfigParser()
@@ -41,13 +40,6 @@ try:
     telegram_token: str = config.get('secret', 'telegram_token')
     log_level: str = config.get('main', 'log_level')
     base_api_url: str = config.get('main', 'base_api_url')
-    amount_to_cache: int = config.getint('main', 'amount_to_cache')
-    status_interval: int = config.getint('main', 'status_interval')
-
-    embed_footer: str = config.get('discord', 'embed_footer')
-    embed_color: int = int(config.get('discord', 'embed_color'), base=16)
-    embed_title: str = config.get('discord', 'embed_title')
-    embed_url: str = config.get('discord', 'embed_url')
 
 except Exception as err:
     console.critical("Error reading the config.ini file. Error: " + str(err))
