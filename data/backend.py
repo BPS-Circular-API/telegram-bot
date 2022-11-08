@@ -113,7 +113,7 @@ def get_png(download_url: str) -> list or None:
     if int(request.json()['http_status']) == 500:
         console.error("The API returned 500 Internal Server Error. Please check the API logs.")
         return
-    return str(request.json()['data'])
+    return list(request.json()['data'])
 
 
 def search(title: str or int) -> dict or None:
@@ -156,10 +156,11 @@ def set_list(obj):
 
 try:
     updater = Updater(telegram_token, use_context=True)
-    client = updater.bot
 except telegram.error.InvalidToken:
     console.critical("Invalid Telegram Token.")
     sys.exit()
 except Exception as err:
     console.critical(f"Error: {err}")
     sys.exit()
+
+client = updater.bot
