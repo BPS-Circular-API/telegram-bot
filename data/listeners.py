@@ -40,8 +40,7 @@ def list_page_callback(update, context):
 
 def get_circulars(_cats, final_dict):
     for item in _cats:
-        res = get_circular_list(item)
-        final_dict[item] = res[i]
+        final_dict[item] = get_circular_list(item)
 
     set_cached(final_dict)
 
