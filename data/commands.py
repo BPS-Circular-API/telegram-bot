@@ -17,7 +17,7 @@ def help_cmd(update, context):
                  "*Source Code*: https://bpsapi.rajtech.me/r/telegram-bot/\n" \
                  "Developed by [Raj Dave](t.me/Nice_Creator)."
 
-    update.message.reply_text(reply_text, parse_mode="Markdown")
+    update.message.reply_text(reply_text, parse_mode="Markdown", disable_web_page_preview=True)
 
 
 # @client.message_handler(content_types=['latest'])
@@ -41,7 +41,11 @@ def latest_cmd(update, context):
         update.message.reply_text("Error in fetching latest circulars.")
         return
 
-    reply_text = f"Latest `{category}` Circular:\n\n*Title*: `{info['title'].capitalize()}`\n*ID*: `{info['id']}`\n*URL*: {info['link']}"
+    reply_text = f"Latest `{category}` Circular:\n" \
+                 f"\n" \
+                 f"*Title*: `{info['title'].capitalize()}`\n" \
+                 f"*ID*: `{info['id']}`\n" \
+                 f"*URL*: {info['link']}"
     update.message.reply_photo(png, caption=reply_text, parse_mode="Markdown")
 
 
@@ -134,6 +138,7 @@ def subscribe_cmd(update, context):
     cur = con.cursor()
 
     guild_id = update.message.chat.id
+
     cur.execute(f"SELECT * FROM notify WHERE id = {guild_id}")
     guilds = cur.fetchall()
     if not len(guilds) == 0:
