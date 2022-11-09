@@ -22,14 +22,14 @@ def main():
     dp.add_handler(CommandHandler("latest", latest_cmd))
     dp.add_handler(CommandHandler("list", list_cmd))
     dp.add_handler(CommandHandler("search", search_cmd))
-    dp.add_handler(CommandHandler("notify_sub", guild_notify_cmd))
-    dp.add_handler(CommandHandler("notify_unsub", guild_unnotify_cmd))
+    dp.add_handler(CommandHandler("subscribe", subscribe_cmd))
+    dp.add_handler(CommandHandler("unsubscribe", unsubscribe_cmd))
+
 
     # Start the Bot
     updater.start_polling()
     updater.idle()
     
-
 
 if __name__ == '__main__':
     print("Started")
