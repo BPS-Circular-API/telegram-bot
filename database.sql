@@ -9,5 +9,5 @@ CREATE TABLE if not exists "cache"  (
 	"data"	BLOB
 );
 
-INSERT INTO "cache" ("title", "data") VALUES ("list", "{}");
-INSERT INTO "cache" ("title", "data") VALUES ("circular", "{}");
+INSERT INTO "cache" ("title", "data") VALUES ("list", "");
+INSERT INTO "cache" ("title", "data") VALUES ("circular", "");

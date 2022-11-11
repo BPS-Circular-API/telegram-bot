@@ -32,8 +32,9 @@ def colorlogger():
 
 console = colorlogger()
 
+# Get config
+
 try:
-    # print all sections in the config file
     telegram_token: str = config.get('secret', 'telegram_token')
     log_level: str = config.get('main', 'log_level')
     base_api_url: str = config.get('main', 'base_api_url')
@@ -42,11 +43,16 @@ except Exception as err:
     console.critical("Error reading the config.ini file. Error: " + str(err))
     sys.exit()
 
+# Config Checks
+
 if log_level.upper() in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
     console.setLevel(log_level.upper())
 else:
     console.warning(f"Invalid log level {log_level}. Defaulting to INFO.")
     console.setLevel("INFO")
+
+if base_api_url[-1] != "/":     # Since some very bright people don't know how to fill in a config file
+    base_api_url += "/"
 
 
 def get_circular_list(category: str) -> tuple or None:
@@ -119,14 +125,14 @@ def search(title: str or int) -> dict or None:
     return request.json()['data']
 
 
-def get_cached():
+def get_cached() -> dict:
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
     cur.execute("SELECT data FROM cache WHERE title='circular'")
     return dict(pickle.loads(cur.fetchone()[0]))
 
 
-def set_cached(obj):
+def set_cached(obj: dict) -> None:
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
     cur.execute(f"UPDATE cache SET data=? WHERE title='circular'", (pickle.dumps(obj),))
@@ -134,14 +140,14 @@ def set_cached(obj):
     con.close()
 
 
-def get_list():
+def get_list() -> dict:
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
     cur.execute("SELECT data FROM cache WHERE title='list'")
     return dict(pickle.loads(cur.fetchone()[0]))
 
 
-def set_list(obj):
+def set_list(obj: dict) -> None:
     # set list to data/list.pickle
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
