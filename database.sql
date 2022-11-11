@@ -5,8 +5,8 @@ CREATE TABLE if not exists "notify" (
 );
 
 CREATE TABLE if not exists "cache"  (
-	"title"	TEXT UNIQUE,
-	"data"	TEXT
+	"title"	BLOB UNIQUE,
+	"data"	BLOB
 );
 
 INSERT INTO "cache" ("title", "data") VALUES ("list", "{}");

@@ -8,9 +8,7 @@ import sqlite3
 from colorlog import ColoredFormatter
 from telegram.ext import Updater
 
-
 categories = ["general", "exam", "ptm"]
-
 
 # Loading config.ini
 config = configparser.ConfigParser()
@@ -24,7 +22,6 @@ except Exception as e:
 
 # Initializing the logger
 def colorlogger():
-
     logger = logging.getLogger()
     stream = logging.StreamHandler()
     log_format = "%(reset)s%(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s"
@@ -123,27 +120,34 @@ def search(title: str or int) -> dict or None:
 
 
 def get_cached():
-    # get dict from data/temp.pickle
-    with open("./data/circular-cache.pickle", "rb") as f:
-        return pickle.load(f)
+    con = sqlite3.connect("./data/data.db")
+    cur = con.cursor()
+    cur.execute("SELECT data FROM cache WHERE title='circular'")
+    return dict(pickle.loads(cur.fetchone()[0]))
 
 
 def set_cached(obj):
-    # set dict to data/temp.pickle
-    with open("./data/circular-cache.pickle", "wb") as f:
-        pickle.dump(obj, f)
+    con = sqlite3.connect("./data/data.db")
+    cur = con.cursor()
+    cur.execute(f"UPDATE cache SET data=? WHERE title='circular'", (pickle.dumps(obj),))
+    con.commit()
+    con.close()
 
 
 def get_list():
-    # get list from data/list.pickle
-    with open("./data/list.pickle", "rb") as f:
-        return pickle.load(f)
+    con = sqlite3.connect("./data/data.db")
+    cur = con.cursor()
+    cur.execute("SELECT data FROM cache WHERE title='list'")
+    return dict(pickle.loads(cur.fetchone()[0]))
 
 
 def set_list(obj):
     # set list to data/list.pickle
-    with open("./data/list.pickle", "wb") as f:
-        pickle.dump(obj, f)
+    con = sqlite3.connect("./data/data.db")
+    cur = con.cursor()
+    cur.execute(f"UPDATE cache SET data=? WHERE title='list'", (pickle.dumps(obj),))
+    con.commit()
+    con.close()
 
 
 try:
