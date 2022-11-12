@@ -7,6 +7,7 @@ import sys
 import sqlite3
 from colorlog import ColoredFormatter
 from telegram.ext import Updater
+import pybpsapi
 
 categories = ["general", "exam", "ptm"]
 

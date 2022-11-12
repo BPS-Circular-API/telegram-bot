@@ -107,18 +107,18 @@ def notify(cat, circular):
         try:
             client.send_photo(
                 target[0], photo=png, caption=
-                    f"New Circular in *{cat.capitalize()}*\n"
-                    f"\n"
-                    f"*Title*: `{circular['title']}`\n"
-                    f"*ID*: `{circular['id']}`\n"
-                    # f"\n"
-                    f"*URL*: {circular['link']}",
+                f"New Circular in *{cat.capitalize()}*\n"
+                f"\n"
+                f"*Title*: `{circular['title']}`\n"
+                f"*ID*: `{circular['id']}`\n"
+                # f"\n"
+                f"*URL*: {circular['link']}",
                 parse_mode='Markdown')
 
             console.info(f"Sent circular to {target[0]}")
 
         except telegram.error.BadRequest:
-            pass
+            console.warning(f"Error sending circular to {target[0]} Probably a deleted account")
 
         except Exception as e:
             console.warning(f"Error sending circular to {target[0]} : {e}")
