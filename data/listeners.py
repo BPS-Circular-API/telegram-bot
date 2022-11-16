@@ -3,6 +3,7 @@ import threading
 import sqlite3
 from telegram_bot_pagination import InlineKeyboardPaginator
 from data.backend import console, get_list, get_png, get_circular_list, set_cached, get_cached, client
+import pybpsapi
 
 
 def list_page_callback(update, context):
@@ -46,52 +47,35 @@ def get_circulars(_cats, final_dict):
 
 
 def circular_checker():
-    categories = ("ptm", "general", "exam")
-    final_dict = {"general": [], "ptm": [], "exam": []}
     new_circular_objects = {"general": [], "ptm": [], "exam": []}
 
-    try:  # Try to get the cached data and make it a dict
-        old_cached = dict(get_cached())
+    ptm = pybpsapi.CircularChecker('ptm', cache_method='database', db_name='data', db_path='./data', db_table='cache')
+    general = pybpsapi.CircularChecker('general', cache_method='database', db_name='data', db_path='./data',
+                                       db_table='cache')
+    exam = pybpsapi.CircularChecker('exam', cache_method='database', db_name='data', db_path='./data', db_table='cache')
 
-    except Exception as e:  # If it can't be gotten/can't be made into a dict (is None)
-        console.warning(f"Error getting cached circulars : {e}")
-        get_circulars(categories, final_dict)
+    ptm = ptm.check()
+    general = general.check()
+    exam = exam.check()
 
-        set_cached(final_dict)
-        return
+    if ptm:
+        new_circular_objects["ptm"] = ptm
+    if general:
+        new_circular_objects["general"] = general
+    if exam:
+        new_circular_objects["exam"] = exam
 
-    if old_cached == {}:
-        console.info("Cached is empty, setting it to the latest circular")
-        get_circulars(categories, final_dict)
-        return
-    else:
-        console.debug("Cache is not empty, checking for new circulars")
+    console.info(f"Found {len(new_circular_objects['general']) + len(new_circular_objects['ptm']) + len(new_circular_objects['exam'])} new circulars.")
+    console.debug(f"New Circulars: {new_circular_objects}")
 
-    for item in categories:
-        final_dict[item] = get_circular_list(item)
-
-    get_circulars(categories, final_dict)
-
-    console.debug('[Listeners] | ' + str(final_dict))
-    console.debug('[Listeners] | ' + str(old_cached))
-
-    if final_dict != old_cached:  # If the old and new dict are not the same
-        console.info("There's a new circular posted!")
-
-        for circular_cat in categories:
-            new_circular_objects[circular_cat] = [i for i in final_dict[circular_cat] if
-                                                  i not in old_cached[circular_cat]]
-
-        console.info(f"{(sum(len(v) for v in new_circular_objects.values()))} new circular(s) found")
-        console.debug(new_circular_objects)
-
-        for cat in categories:
-            for circular in new_circular_objects[cat]:
-                console.debug(circular)
-                notify(cat, circular)
+    if new_circular_objects["ptm"] or new_circular_objects["general"] or new_circular_objects["exam"]:
+        for cat in new_circular_objects:
+            if cat:
+                for obj in new_circular_objects[cat]:
+                    notify(cat, obj)
 
     else:
-        console.info("No new circulars")
+        console.debug(f"[Listeners] | No new circulars found.")
 
 
 def notify(cat, circular):
