@@ -158,7 +158,7 @@ def set_list(obj: dict) -> None:
 
 
 try:
-    updater = Updater(telegram_token, use_context=True)
+    updater = Updater(telegram_token, use_context=True, request_kwargs={'read_timeout': 6, 'connect_timeout': 7})
 except telegram.error.InvalidToken:
     console.critical("Invalid Telegram Token.")
     sys.exit()

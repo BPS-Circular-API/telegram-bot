@@ -47,23 +47,14 @@ def get_circulars(_cats, final_dict):
 
 
 def circular_checker():
-    new_circular_objects = {"general": [], "ptm": [], "exam": []}
-
     ptm = pybpsapi.CircularChecker('ptm', cache_method='database', db_name='data', db_path='./data', db_table='cache')
     general = pybpsapi.CircularChecker('general', cache_method='database', db_name='data', db_path='./data',
                                        db_table='cache')
     exam = pybpsapi.CircularChecker('exam', cache_method='database', db_name='data', db_path='./data', db_table='cache')
 
-    ptm = ptm.check()
-    general = general.check()
-    exam = exam.check()
+    group = pybpsapi.CircularCheckerGroup(ptm, general, exam)
 
-    if ptm:
-        new_circular_objects["ptm"] = ptm
-    if general:
-        new_circular_objects["general"] = general
-    if exam:
-        new_circular_objects["exam"] = exam
+    new_circular_objects = group.check()
 
     console.info(f"Found {len(new_circular_objects['general']) + len(new_circular_objects['ptm']) + len(new_circular_objects['exam'])} new circulars.")
     console.debug(f"New Circulars: {new_circular_objects}")
