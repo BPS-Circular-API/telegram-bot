@@ -136,7 +136,7 @@ def get_cached() -> dict:
 def set_cached(obj: dict) -> None:
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
-    cur.execute(f"UPDATE cache SET data=? WHERE title='circular'", (pickle.dumps(obj),))
+    cur.execute("UPDATE cache SET data=? WHERE title='circular'", (pickle.dumps(obj),))
     con.commit()
     con.close()
 
@@ -152,7 +152,7 @@ def set_list(obj: dict) -> None:
     # set list to data/list.pickle
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
-    cur.execute(f"UPDATE cache SET data=? WHERE title='list'", (pickle.dumps(obj),))
+    cur.execute("UPDATE cache SET data=? WHERE title='list'", (pickle.dumps(obj),))
     con.commit()
     con.close()
 

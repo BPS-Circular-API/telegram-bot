@@ -139,13 +139,13 @@ def subscribe_cmd(update, context):
 
     guild_id = update.message.chat.id
 
-    cur.execute(f"SELECT * FROM notify WHERE id = {guild_id}")
+    cur.execute("SELECT * FROM notify WHERE id = ?", (guild_id,))
     guilds = cur.fetchall()
     if not len(guilds) == 0:
         update.message.reply_text("You're already subscribed to the guild notifications.")
         return
 
-    cur.execute(f"INSERT INTO notify VALUES ({guild_id})")
+    cur.execute("INSERT INTO notify VALUES (?)", (guild_id,))
     con.commit()
 
     update.message.reply_text("You have been subscribed to the guild notifications.")
@@ -156,13 +156,13 @@ def unsubscribe_cmd(update, context):
     con = sqlite3.connect("./data/data.db")
     cur = con.cursor()
     guild_id = update.message.chat.id
-    cur.execute(f"SELECT * FROM notify WHERE id = {guild_id}")
+    cur.execute("SELECT * FROM notify WHERE id = ?", (guild_id,))
     guilds = cur.fetchall()
     if len(guilds) == 0:
         update.message.reply_text("You're not subscribed to the guild notifications.")
         return
 
-    cur.execute(f"DELETE FROM notify WHERE id = {guild_id}")
+    cur.execute("DELETE FROM notify WHERE id = ?", (guild_id,))
     con.commit()
 
     update.message.reply_text("You have been unsubscribed from the guild notifications.")
